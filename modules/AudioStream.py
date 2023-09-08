@@ -2,21 +2,6 @@ import numpy as np
 import sounddevice as sd
 
 
-def play_sine_wave(frequency=440.0, duration=1.0, amplitude=0.5, samplerate=44100):
-    """
-    指定された周波数、持続時間、振幅、サンプリングレートでサイン波を再生します。
-
-    :param frequency: サイン波の周波数 (デフォルト: 440.0Hz)
-    :param duration: サイン波の持続時間 (デフォルト: 1.0秒)
-    :param amplitude: サイン波の振幅 (デフォルト: 0.5)
-    :param samplerate: サンプリングレート (デフォルト: 44100Hz)
-    """
-    t = np.arange(int(samplerate * duration)) / samplerate  # 時間軸
-    print(t)
-    x = amplitude * np.sin(2 * np.pi * frequency * t)  # サイン波の生成
-    sd.play(x, samplerate=samplerate)
-
-
 class AudioStream:
     def __init__(self, frequency=440.0, amplitude=0.5, samplerate=44100):
         self.frequency = frequency

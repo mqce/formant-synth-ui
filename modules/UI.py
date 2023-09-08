@@ -2,19 +2,24 @@ import tkinter as tk
 from tkinter import ttk
 import math
 
+title = "Formant Synth"
+
 
 class UI:
     def __init__(self, stream, frequency):
         self.stream = stream
         self.root = tk.Tk()
         self.frequency = tk.DoubleVar(value=frequency)
-        self.root.protocol("WM_DELETE_WINDOW", self.on_destroy)
 
-        self.buildUI()
+        self._buildUI()
+        self.root.protocol("WM_DELETE_WINDOW", self._on_destroy)  # windowを閉じるとき
 
-    def buildUI(self):
+    def show(self):
+        self.root.mainloop()  # windowを表示
+
+    def _buildUI(self):
         root = self.root
-        root.title("Sine Wave Generator")
+        root.title(title)
 
         self.label = ttk.Label(root, text="")
         slider = ttk.Scale(
@@ -23,7 +28,7 @@ class UI:
             to=1000.0,
             variable=self.frequency,
             orient="horizontal",
-            command=self.show_frequency,
+            command=self._change_frequency,
         )
         button_play = ttk.Button(
             root,
@@ -42,14 +47,13 @@ class UI:
         button_play.pack()
         button_stop.pack()
 
-    def show_frequency(self, val):
-        self.label["text"] = math.floor(self.frequency.get())
-        print("val:%4d" % self.frequency.get())
+    def _change_frequency(self, val):
+        frequency = self.frequency.get()
+        self.label["text"] = math.floor(frequency)
+        self.stream.frequency = frequency
 
-    def on_destroy(self):
+        # print("val:%4d" % frequency)
+
+    def _on_destroy(self):
         self.stream.destroy()
         self.root.destroy()
-
-    def show(self):
-        # windowを表示
-        self.root.mainloop()
