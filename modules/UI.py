@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+
 title = "Formant Synth"
 
 
@@ -12,28 +13,17 @@ class UI:
     def __init__(self, stream):
         self.stream = stream
         self.root = tk.Tk()
-        self.frequency = tk.DoubleVar(value=stream.frequency)
 
-        self._buildUI()
+        self._build()
         self.root.protocol("WM_DELETE_WINDOW", self._on_destroy)  # windowを閉じるとき
 
     def show(self):
         self.root.mainloop()  # windowを表示
 
-    def _buildUI(self):
+    def _build(self):
         root = self.root
         root.title(title)
 
-        self.label = ttk.Label(root, text="")
-        slider = ttk.Scale(
-            root,
-            from_=100.0,
-            to=1000.0,
-            length=500,
-            variable=self.frequency,
-            orient="horizontal",
-            command=self._change_frequency,
-        )
         button_play = ttk.Button(
             root,
             text="PLAY",
@@ -49,9 +39,9 @@ class UI:
         fig = Fig(root, self.stream)
         fig.widget.pack()
 
+        UI_Frequency(root, self.stream)
+
         # レイアウト
-        self.label.pack()
-        slider.pack()
         button_play.pack()
         button_stop.pack()
 
@@ -61,16 +51,58 @@ class UI:
         plt.ylim(-1.0, 1.0)
         plt.plot(self.stream.last_data)  # グラフを生成
 
-    def _change_frequency(self, val):
-        frequency = self.frequency.get()
-        self.label["text"] = math.floor(frequency)
-        self.stream.frequency = frequency
-        # print("val:%4d" % frequency)
-
     def _on_destroy(self):
         self.stream.destroy()
         self.root.quit()
         self.root.destroy()
+
+
+class UI_Frequency:
+    def __init__(self, root, stream):
+        self.stream = stream
+        self.frequency = tk.DoubleVar(value=stream.frequency)
+
+        frame = self._add_frame(root)
+        self._add_items(frame)
+
+    def _add_frame(self, root):
+        frame = ttk.Frame(root, padding=10)
+        frame.pack()
+        frame.columnconfigure(0, weight=1)
+        frame.rowconfigure(0, weight=1)
+        return frame
+
+    def _add_items(self, frame):
+        col = 0
+
+        # label
+        label = ttk.Label(frame, text="Frequency")
+        label.grid(row=0, column=col)
+        col += 1
+
+        # slider
+        slider = ttk.Scale(
+            frame,
+            from_=100.0,
+            to=1000.0,
+            length=400,
+            variable=self.frequency,
+            orient="horizontal",
+            command=self._change_frequency,
+        )
+        slider.grid(row=0, column=col)
+        col += 1
+
+        # display value
+        self.disp = ttk.Label(frame, text=self.frequency.get())
+        self.disp.grid(row=0, column=col)
+        col += 1
+
+    def _change_frequency(self, val):
+        frequency = self.frequency.get()
+        self.disp["text"] = math.floor(frequency)
+        self.stream.frequency = frequency
+        # print("val:%4d" % frequency)
 
 
 class Fig:
