@@ -40,16 +40,11 @@ class UI:
         fig.widget.pack()
 
         UI_Frequency(root, self.stream)
+        UI_Amplitude(root, self.stream)
 
         # レイアウト
         button_play.pack()
         button_stop.pack()
-
-    def _updateFig(self, data):
-        plt.cla()  # 現在描写されているグラフを消去
-        plt.xlim(0, 500)
-        plt.ylim(-1.0, 1.0)
-        plt.plot(self.stream.last_data)  # グラフを生成
 
     def _on_destroy(self):
         self.stream.destroy()
@@ -103,6 +98,53 @@ class UI_Frequency:
         self.disp["text"] = math.floor(frequency)
         self.stream.frequency = frequency
         # print("val:%4d" % frequency)
+
+
+class UI_Amplitude:
+    def __init__(self, root, stream):
+        self.stream = stream
+        self.amplitude = tk.DoubleVar(value=stream.amplitude)
+
+        frame = self._add_frame(root)
+        self._add_items(frame)
+
+    def _add_frame(self, root):
+        frame = ttk.Frame(root, padding=10)
+        frame.pack()
+        frame.columnconfigure(0, weight=1)
+        frame.rowconfigure(0, weight=1)
+        return frame
+
+    def _add_items(self, frame):
+        col = 0
+
+        # label
+        label = ttk.Label(frame, text="Amplitude")
+        label.grid(row=0, column=col)
+        col += 1
+
+        # slider
+        slider = ttk.Scale(
+            frame,
+            from_=0.0,
+            to=100.0,
+            length=400,
+            variable=self.amplitude,
+            orient="horizontal",
+            command=self._change,
+        )
+        slider.grid(row=0, column=col)
+        col += 1
+
+        # display value
+        self.disp = ttk.Label(frame, text=self.amplitude.get())
+        self.disp.grid(row=0, column=col)
+        col += 1
+
+    def _change(self, val):
+        amplitude = self.amplitude.get()
+        self.disp["text"] = math.floor(amplitude)
+        self.stream.amplitude = amplitude
 
 
 class Fig:
